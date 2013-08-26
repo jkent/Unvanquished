@@ -1611,7 +1611,14 @@ they can't have pointers returned to them
 */
 void Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength )
 {
-	Q_strncpyz( buffer, Cmd_Argv( arg ), bufferLength );
+	if ( arg >= 0 )
+	{
+		Q_strncpyz( buffer, Cmd_Argv( arg ), bufferLength );
+	}
+	else
+	{
+		Q_strncpyz( buffer, Cmd_Cmd_FromNth( -arg ), bufferLength );
+	}
 }
 
 /*

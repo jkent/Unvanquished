@@ -738,6 +738,9 @@ static const struct svcmd
 	{ "listmaps",           qtrue,  Svcmd_ListMapsWrapper        },
 	{ "listrotation",       qtrue,  Svcmd_ListRotationWrapper    },
 	{ "loadcensors",        qfalse, G_LoadCensors                },
+#ifndef Q3_VM
+	{ "lua",                qfalse, Svcmd_Lua_f                  },
+#endif /* Q3_VM */
 	{ "m",                  qtrue,  Svcmd_MessageWrapper         },
 	{ "maplog",             qtrue,  Svcmd_MapLogWrapper          },
 	{ "mapRotation",        qfalse, Svcmd_MapRotation_f          },

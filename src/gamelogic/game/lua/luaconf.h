@@ -545,6 +545,12 @@
 ** without modifying the main part of the file.
 */
 
+void G_LuaWriteString( const char *s, size_t l );
+void G_LuaWriteLine( void );
+#undef luai_writestring
+#undef luai_writeline
+#define luai_writestring(s,l)  G_LuaWriteString(s,l)
+#define luai_writeline()  G_LuaWriteLine()
 
 
 #endif

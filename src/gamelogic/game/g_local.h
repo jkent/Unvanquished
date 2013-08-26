@@ -1256,6 +1256,17 @@ void G_namelog_cleanup( void );
 const char *G_admin_name( gentity_t *ent );
 const char *G_quoted_admin_name( gentity_t *ent );
 
+//
+// g_lua.c
+//
+#ifndef Q3_VM
+#include "lua/lua.h"
+extern lua_State *g_luaState;
+void G_LuaInit( void );
+void G_LuaCleanup( void );
+void Svcmd_Lua_f( void );
+#endif /* Q3_VM */
+
 extern  level_locals_t level;
 extern  gentity_t      g_entities[ MAX_GENTITIES ];
 

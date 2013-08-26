@@ -776,6 +776,44 @@ set( CGAMEGPP_QVM
   ${GPP_DIR}/cgame/cg_api.asm
 )
 
+set( GAMEGPP_LUACORE
+  ${GPP_DIR}/game/lua/lapi.c
+  ${GPP_DIR}/game/lua/lcode.c
+  ${GPP_DIR}/game/lua/lctype.c
+  ${GPP_DIR}/game/lua/ldebug.c
+  ${GPP_DIR}/game/lua/ldo.c
+  ${GPP_DIR}/game/lua/ldump.c
+  ${GPP_DIR}/game/lua/lfunc.c
+  ${GPP_DIR}/game/lua/lgc.c
+  ${GPP_DIR}/game/lua/llex.c
+  ${GPP_DIR}/game/lua/lmem.c
+  ${GPP_DIR}/game/lua/lobject.c
+  ${GPP_DIR}/game/lua/lopcodes.c
+  ${GPP_DIR}/game/lua/lparser.c
+  ${GPP_DIR}/game/lua/lstate.c
+  ${GPP_DIR}/game/lua/lstring.c
+  ${GPP_DIR}/game/lua/ltable.c
+  ${GPP_DIR}/game/lua/ltm.c
+  ${GPP_DIR}/game/lua/lundump.c
+  ${GPP_DIR}/game/lua/lvm.c
+  ${GPP_DIR}/game/lua/lzio.c
+)
+
+set( GAMEGPP_LUALIB
+  ${GPP_DIR}/game/lua/lauxlib.c
+  ${GPP_DIR}/game/lua/lbaselib.c
+  ${GPP_DIR}/game/lua/lbitlib.c
+  ${GPP_DIR}/game/lua/lcorolib.c
+  ${GPP_DIR}/game/lua/ldblib.c
+  ${GPP_DIR}/game/lua/liolib.c
+  ${GPP_DIR}/game/lua/lmathlib.c
+  ${GPP_DIR}/game/lua/loslib.c
+  ${GPP_DIR}/game/lua/lstrlib.c
+  ${GPP_DIR}/game/lua/ltablib.c
+  ${GPP_DIR}/game/lua/loadlib.c
+  ${GPP_DIR}/game/lua/linit.c
+)
+
 set( GAMEGPP_BASE
   ${GPP_DIR}/game/g_main.c
   ${GPP_DIR}/game/bg_misc.c
@@ -817,6 +855,9 @@ set( GAMEGPP_BASE
 
 set( GAMEGPP_SO
   ${GAMEGPP_BASE}
+  ${GAMEGPP_LUACORE}
+  ${GAMEGPP_LUALIB}
+  ${GPP_DIR}/game/g_lua.c
   ${SHAREDLIST_H}
   ${GPP_DIR}/game/g_api.c
   ${GPP_DIR}/game/game.def

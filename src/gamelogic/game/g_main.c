@@ -866,6 +866,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 		trap_Cvar_Set( "g_lockTeamsAtStart", "0" );
 	}
 
+#ifndef Q3_VM
+	G_LuaInit();
+#endif /* Q3_VM */
+
 	G_notify_sensor_start();
 }
 
@@ -920,6 +924,10 @@ G_ShutdownGame
 */
 void G_ShutdownGame( int restart )
 {
+#ifndef Q3_VM
+	G_LuaCleanup();
+#endif /* Q3_VM */
+
 	// in case of a map_restart
 	G_ClearVotes( qtrue );
 
