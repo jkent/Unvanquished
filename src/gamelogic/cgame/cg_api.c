@@ -581,9 +581,9 @@ void trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r,
 
 //76.
 //return FS_Seek( args[1], args[2], args[3] );
-void trap_GS_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
+int trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
 {
-	syscall( CG_FS_SEEK, f, offset, origin );
+	return syscall( CG_FS_SEEK, f, offset, origin );
 }
 
 //77.

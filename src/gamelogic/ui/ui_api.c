@@ -213,7 +213,7 @@ int trap_FS_GetFileList( const char *path, const char *extension, char *listbuf,
 
 //23.
 //return FS_Seek(args[1], args[2], args[3]);
-int trap_FS_Seek( fileHandle_t f, long offset, int origin )
+int trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
 {
 	return syscall( UI_FS_SEEK, f, offset, origin );
 }

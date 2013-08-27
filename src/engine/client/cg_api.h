@@ -378,7 +378,7 @@ void            trap_R_AddPolysToScene( qhandle_t hShader, int numVerts, const p
 void            trap_R_AddPolyBufferToScene( polyBuffer_t *pPolyBuffer );
 void            trap_R_AddLightToScene( const vec3_t org, float radius, float intensity, float r, float g, float b, qhandle_t hShader, int flags );
 void            trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
-void            trap_GS_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin );
+int             trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin );
 void            trap_R_AddCoronaToScene( const vec3_t org, float r, float g, float b, float scale, int id, qboolean visible );
 void            trap_R_SetFog( int fogvar, int var1, int var2, float r, float g, float b, float density );
 void            trap_R_SetGlobalFog( qboolean restore, int duration, float r, float g, float b, float depthForOpaque );

@@ -570,3 +570,9 @@ void trap_GetTimeString( char *buffer, int size, const char *format, const qtime
 {
 	syscall( G_GETTIMESTRING, buffer, size, format, tm );
 }
+
+//return FS_Seek( args[1], args[2], args[3] );
+int trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
+{
+	return syscall( G_FS_SEEK, f, offset, origin );
+}

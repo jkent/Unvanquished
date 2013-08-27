@@ -91,7 +91,7 @@ equ trap_R_AddPolysToScene                -327
 equ trap_R_AddPolyBufferToScene           -328
 equ trap_R_AddLightToScene                -329
 equ trap_R_AddAdditiveLightToScene        -330
-equ trap_GS_FS_Seek                       -331
+equ trap_FS_Seek                          -331
 equ trap_R_AddCoronaToScene               -332
 equ trap_R_SetFog                         -333
 equ trap_R_SetGlobalFog                   -334

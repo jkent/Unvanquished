@@ -88,3 +88,4 @@ equ trap_QuoteString                      -321
 equ trap_GenFingerprint                   -322
 equ trap_GetPlayerPubkey                  -323
 equ trap_GetTimeString                    -324
+equ trap_FS_Seek                          -325
