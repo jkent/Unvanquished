@@ -686,8 +686,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
 
 		case CG_FS_READ:
 			VM_CheckBlock( args[1], args[2], "FSREAD" );
-			FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
-			return 0;
+			return FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
 
 		case CG_FS_WRITE:
 			VM_CheckBlock( args[1], args[2], "FSWRITE" );

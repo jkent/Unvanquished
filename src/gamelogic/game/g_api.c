@@ -142,9 +142,9 @@ int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
 
 //13.
 //FS_Read(VMA(1), args[2], args[3]);
-void trap_FS_Read( void *buffer, int len, fileHandle_t f )
+int trap_FS_Read( void *buffer, int len, fileHandle_t f )
 {
-	syscall( G_FS_READ, buffer, len, f );
+	return syscall( G_FS_READ, buffer, len, f );
 }
 
 //14.

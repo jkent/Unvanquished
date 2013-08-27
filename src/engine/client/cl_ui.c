@@ -1050,13 +1050,11 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 
 		case UI_FS_READ:
 			VM_CheckBlock( args[1], args[2], "FSREAD" );
-			FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
-			return 0;
+			return FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
 
 		case UI_FS_WRITE:
 			VM_CheckBlock( args[1], args[2], "FSWRITE" );
-			FS_Write( VMA( 1 ), args[ 2 ], args[ 3 ] );
-			return 0;
+			return FS_Write( VMA( 1 ), args[ 2 ], args[ 3 ] );
 
 		case UI_FS_FCLOSEFILE:
 			FS_FCloseFile( args[ 1 ] );

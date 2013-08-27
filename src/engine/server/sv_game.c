@@ -514,8 +514,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args )
 
 		case G_FS_READ:
 		        VM_CheckBlock( args[1], args[2], "FSREAD" );
-			FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
-			return 0;
+			return FS_Read( VMA( 1 ), args[ 2 ], args[ 3 ] );
 
 		case G_FS_WRITE:
 		        VM_CheckBlock( args[1], args[2], "FSWRITE" );

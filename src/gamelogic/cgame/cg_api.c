@@ -172,16 +172,16 @@ int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
 
 //15.
 //FS_Read(VMA(1), args[2], args[3]);
-void trap_FS_Read( void *buffer, int len, fileHandle_t f )
+int trap_FS_Read( void *buffer, int len, fileHandle_t f )
 {
-	syscall( CG_FS_READ, buffer, len, f );
+	return syscall( CG_FS_READ, buffer, len, f );
 }
 
 //16.
 //return FS_Write(VMA(1), args[2], args[3]);
-void trap_FS_Write( const void *buffer, int len, fileHandle_t f )
+int trap_FS_Write( const void *buffer, int len, fileHandle_t f )
 {
-	syscall( CG_FS_WRITE, buffer, len, f );
+	return syscall( CG_FS_WRITE, buffer, len, f );
 }
 
 //17.
