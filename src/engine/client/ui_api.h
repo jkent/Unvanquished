@@ -146,6 +146,7 @@ typedef enum uiImport_s
   UI_R_UREGISTERFONT,
   UI_PGETTEXT,
   UI_GETTEXT_PLURAL,
+  UI_FS_FTELL,
 } uiImport_t;
 
 typedef struct
@@ -262,6 +263,7 @@ void        trap_FS_FCloseFile( fileHandle_t f );
 int         trap_FS_Delete( const char *filename );
 int         trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
 int         trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin );
+int         trap_FS_FTell( fileHandle_t f );
 qhandle_t   trap_R_RegisterModel( const char *name );
 qhandle_t   trap_R_RegisterSkin( const char *name );
 qhandle_t   trap_R_RegisterShader( const char *name, RegisterShaderFlags_t flags );

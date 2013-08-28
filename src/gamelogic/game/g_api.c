@@ -576,3 +576,9 @@ int trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
 {
 	return syscall( G_FS_SEEK, f, offset, origin );
 }
+
+//return FS_FTell( args[1] );
+int trap_FS_FTell( fileHandle_t f )
+{
+	return syscall( G_FS_FTELL, f );
+}

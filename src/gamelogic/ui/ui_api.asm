@@ -134,3 +134,4 @@ equ trap_R_GlyphChar                      -369
 equ trap_R_UnregisterFont                 -370
 equ trap_Pgettext                         -371
 equ trap_GettextPlural                    -372
+equ trap_FS_FTell                         -373

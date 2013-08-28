@@ -1247,3 +1247,8 @@ void trap_R_SetAltShaderTokens( const char *str )
     syscall( CG_R_SETALTSHADERTOKENS, str );
 }
 
+//return FS_FTell( args[1] );
+int trap_FS_FTell( fileHandle_t f )
+{
+	return syscall( CG_FS_FTELL, f );
+}

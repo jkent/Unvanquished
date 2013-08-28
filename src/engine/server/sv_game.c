@@ -745,6 +745,9 @@ intptr_t SV_GameSystemCalls( intptr_t *args )
 		case G_FS_SEEK:
 			return FS_Seek( args[ 1 ], args[ 2 ], args[ 3 ] );
 
+		case G_FS_FTELL:
+			return FS_FTell( args[ 1 ] );
+
 		default:
 			Com_Error( ERR_DROP, "Bad game system trap: %ld", ( long int ) args[ 0 ] );
 			exit(1); // silence warning, and make sure this behaves as expected, if Com_Error's behavior changes

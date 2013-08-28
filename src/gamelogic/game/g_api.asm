@@ -89,3 +89,4 @@ equ trap_GenFingerprint                   -322
 equ trap_GetPlayerPubkey                  -323
 equ trap_GetTimeString                    -324
 equ trap_FS_Seek                          -325
+equ trap_FS_FTell                         -326

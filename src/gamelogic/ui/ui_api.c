@@ -859,3 +859,9 @@ void trap_GettextPlural( char *buffer, const char *msgid, const char *msgid2, in
 {
 	syscall( UI_GETTEXT_PLURAL, buffer, msgid, msgid2, number, bufferLength );
 }
+
+//return FS_FTell( args[1] );
+int trap_FS_FTell( fileHandle_t f )
+{
+	return syscall( UI_FS_FTELL, f );
+}

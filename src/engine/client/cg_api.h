@@ -231,7 +231,8 @@ typedef enum cgameImport_s
   CG_R_SCISSOR_ENABLE,
   CG_R_SCISSOR_SET,
   CG_PREPAREKEYUP,
-  CG_R_SETALTSHADERTOKENS
+  CG_R_SETALTSHADERTOKENS,
+  CG_FS_FTELL,
 } cgameImport_t;
 
 typedef enum
@@ -312,6 +313,7 @@ int             trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void            trap_FS_FCloseFile( fileHandle_t f );
 int             trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
 int             trap_FS_Delete( const char *filename );
+int             trap_FS_FTell( fileHandle_t f );
 void            trap_SendConsoleCommand( const char *text );
 void            trap_AddCommand( const char *cmdName );
 void            trap_RemoveCommand( const char *cmdName );

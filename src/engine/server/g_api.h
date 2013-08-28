@@ -168,6 +168,7 @@ typedef enum gameImport_s
   G_GETPLAYERPUBKEY,
   G_GETTIMESTRING,
   G_FS_SEEK,
+  G_FS_FTELL,
 } gameImport_t;
 
 // engine-to-game-module calls
