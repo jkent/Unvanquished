@@ -805,6 +805,7 @@ set( GAMEGPP_LUALIB
   ${GPP_DIR}/game/lua/lbitlib.c
   ${GPP_DIR}/game/lua/lcorolib.c
   ${GPP_DIR}/game/lua/ldblib.c
+  ${GPP_DIR}/game/lua/qfile.c
   ${GPP_DIR}/game/lua/liolib.c
   ${GPP_DIR}/game/lua/lmathlib.c
   ${GPP_DIR}/game/lua/loslib.c
