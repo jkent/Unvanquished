@@ -38,23 +38,32 @@ Maryland 20850 USA.
 #include "../g_local.h"
 
 
-#define QFILE_BUFSIZE 512
-
+#define QFILE_BUFSIZE 8192
 
 typedef struct {
 	fileHandle_t fh;
 	char buf[QFILE_BUFSIZE];
 	size_t buflen;
+	qboolean eof;
+	qboolean error;
 } QFILE;
 
+
+#define QEOF (-1)
+#define q_getc(f) q_fgetc(f)
+
+void   q_clearerr(QFILE *f);
+int    q_fclose(QFILE *f);
+int    q_feof(QFILE *f);
+int    q_ferror(QFILE *f);
+int    q_fgetc(QFILE *f);
+char  *q_fgets(char *s, int size, QFILE *f);
 QFILE *q_fopen(const char *qpath, const char *mode);
-int q_fclose(QFILE *f);
 size_t q_fread(void *ptr, size_t size, size_t nmemb, QFILE *f);
+QFILE *q_freopen(const char *qpath, const char *mode, QFILE *f);
+int    q_fseek(QFILE *f, long offset, int whence);
+long   q_ftell(QFILE *f);
 size_t q_fwrite(const void *ptr, size_t size, size_t nmemb, QFILE *f);
-char *q_fgets(char *s, int size, QFILE *f);
-int q_fgetc(QFILE *f);
-int q_ungetc(int c, QFILE *f);
-long q_ftell(QFILE *f);
-int q_fseek(QFILE *f, long offset, int whence);
+int    q_ungetc(int c, QFILE *f);
 
 #endif /* _QFILE_H */
