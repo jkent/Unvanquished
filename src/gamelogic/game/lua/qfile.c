@@ -56,7 +56,7 @@ static int mode_to_fsmode(fsMode_t *fm, const char *mode)
 void q_clearerr(QFILE *f)
 {
   f->eof = qfalse;
-  f->error = qtrue;
+  f->error = qfalse;
 }
 
 int q_fclose(QFILE *f)
