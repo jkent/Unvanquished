@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+
 #include "qfile.h"
 
 #define liolib_c
@@ -21,30 +22,16 @@
 #if !defined(lua_checkmode)
 
 /*
-** Check whether 'mode' matches '[rwa]%+?b?'.
-** Change this macro to accept other modes for 'fopen' besides
+** Check whether 'mode' matches '[rwa]b?'.
+** Change this macro to accept other modes for 'q_fopen' besides
 ** the standard ones.
 */
 #define lua_checkmode(mode) \
 	(*mode != '\0' && strchr("rwa", *(mode++)) != NULL &&	\
-	(*mode != '+' || ++mode) &&  /* skip if char is '+' */	\
 	(*mode != 'b' || ++mode) &&  /* skip if char is 'b' */	\
 	(*mode == '\0'))
 
 #endif
-
-
-/*
-** {======================================================
-** lua_fseek/lua_ftell: configuration for longer offsets
-** =======================================================
-*/
-
-#define l_fseek(f,o,w)		q_fseek(f,o,w)
-#define l_ftell(f)		q_ftell(f)
-#define l_seeknum		long
-
-/* }====================================================== */
 
 
 #define IO_PREFIX	"_IO_"
@@ -283,10 +270,10 @@ static int read_number (lua_State *L, QFILE *f) {
 
 
 static int test_eof (lua_State *L, QFILE *f) {
-  int c = q_fgetc(f);
+  int c = q_getc(f);
   q_ungetc(c, f);
   lua_pushlstring(L, NULL, 0);
-  return (c != EOF);
+  return (c != QEOF);
 }
 
 
@@ -347,6 +334,7 @@ static int g_read (lua_State *L, QFILE *f, int first) {
   int nargs = lua_gettop(L) - 1;
   int success;
   int n;
+  q_clearerr(f);
   if (nargs == 0) {  /* no arguments? */
     success = read_line(L, f, 1);
     n = first+1;  /* to return 1 result */
@@ -384,6 +372,8 @@ static int g_read (lua_State *L, QFILE *f, int first) {
       }
     }
   }
+  if (q_ferror(f))
+    return luaL_fileresult(L, 0, NULL);
   if (!success) {
     lua_pop(L, 1);  /* remove last result */
     lua_pushnil(L);  /* push nil instead */
@@ -463,14 +453,14 @@ static int f_seek (lua_State *L) {
   QFILE *f = tofile(L);
   int op = luaL_checkoption(L, 2, "cur", modenames);
   lua_Number p3 = luaL_optnumber(L, 3, 0);
-  l_seeknum offset = (l_seeknum)p3;
+  long offset = (long)p3;
   luaL_argcheck(L, (lua_Number)offset == p3, 3,
                   "not an integer in proper range");
-  op = l_fseek(f, offset, mode[op]);
+  op = q_fseek(f, offset, mode[op]);
   if (op)
     return luaL_fileresult(L, 0, NULL);  /* error */
   else {
-    lua_pushnumber(L, (lua_Number)l_ftell(f));
+    lua_pushnumber(L, (lua_Number)q_ftell(f));
     return 1;
   }
 }
