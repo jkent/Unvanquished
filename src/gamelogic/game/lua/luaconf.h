@@ -552,6 +552,19 @@ void G_LuaWriteLine( void );
 #define luai_writestring(s,l)  G_LuaWriteString(s,l)
 #define luai_writeline()  G_LuaWriteLine()
 
+#undef LUA_PATH_DEFAULT
+#define LUA_PATH_DEFAULT "/lua/?.lua;/lua/?/init.lua"
+
+#undef LUA_CPATH_DEFAULT
+#if defined(_WIN32)
+#define LUA_CPATH_DEFAULT "/lua/?.dll;/lua/loadall.dll"
+#else
+#define LUA_CPATH_DEFAULT "/lua/?.so;/lua/loadall.so"
+#endif
+
+#undef LUA_DIRSEP
+#define LUA_DIRSEP "/"
+
 
 #endif
 
