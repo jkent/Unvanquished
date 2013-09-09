@@ -41,6 +41,7 @@ Maryland 20850 USA.
 
 
 lua_State *g_luaState;
+qboolean g_luaReinitPend = qfalse;
 
 static char g_luaLineBuf[ 256 ];
 static int g_luaLineBufLen;
@@ -73,6 +74,18 @@ static int G_LuaTraceback( lua_State *L )
 	lua_pushinteger( L, 2 );
 	lua_call( L, 2, 1 );
 	return 1;
+}
+
+/*
+===================
+G_LuaScheduleReinit
+===================
+A lua_CFunction to schedule a Lua reset.
+ */
+static int G_LuaScheduleReinit( lua_State *L )
+{
+	g_luaReinitPend = qtrue;
+	return 0;
 }
 
 /*
@@ -144,6 +157,12 @@ void G_LuaInit( void )
 	}
 
 	luaL_openlibs( g_luaState );
+
+	lua_pushcfunction( g_luaState, G_LuaScheduleReinit );
+	lua_setglobal( g_luaState, "reinit" );
+	g_luaReinitPend = qfalse;
+
+	G_Printf( "Lua initialized\n" );
 }
 
 /*
@@ -194,6 +213,11 @@ void Svcmd_Lua_f( void )
 		lua_getglobal( g_luaState, "print" );
 		lua_insert( g_luaState, 1 );
 		lua_call( g_luaState, n, 0 );
+	}
+
+	if ( g_luaReinitPend ) {
+		G_LuaCleanup();
+		G_LuaInit();
 	}
 }
 
