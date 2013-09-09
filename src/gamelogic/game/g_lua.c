@@ -47,8 +47,37 @@ static int g_luaLineBufLen;
 
 
 /*
+==============
+G_LuaTraceback
+==============
+
+A lua_CFunction that takes an error string and returns a string containing
+the error string and lua stack traceback appended.
+*/
+static int G_LuaTraceback( lua_State *L )
+{
+	lua_getglobal( L, "debug");
+	if ( !lua_istable( L, -1 ) )
+	{
+		lua_pop( L, 1 );
+		return 1;
+	}
+	lua_getfield( L, -1, "traceback" );
+	lua_remove( L, 2 );
+	if ( !lua_isfunction( L, -1 ) )
+	{
+		lua_pop( L, 1 );
+		return 1;
+	}
+	lua_insert( L, 1 );
+	lua_pushinteger( L, 2 );
+	lua_call( L, 2, 1 );
+	return 1;
+}
+
+/*
 ======================
-CL_LuaWriteString
+G_LuaWriteString
 ======================
 
 The `l' parameter is ignored; lua guarantees the string to have a
@@ -59,13 +88,13 @@ void G_LuaWriteString( const char *s, size_t l )
 	char *p;
 	int len;
 
-	while ( p = strchr(s, '\n') )
+	while ( ( p = strchr( s, '\n' ) ) )
 	{
 		len = p - s + 1;
 		if ( g_luaLineBufLen + len <= sizeof( g_luaLineBuf ) - 1 )
 		{
 			strncpy( g_luaLineBuf + g_luaLineBufLen, s, len );
-			g_luaLineBuf[g_luaLineBufLen + len] = '\0';
+			g_luaLineBuf[ g_luaLineBufLen + len ] = '\0';
 			trap_Print( g_luaLineBuf );
 		}
 		g_luaLineBufLen = 0;
@@ -82,13 +111,13 @@ void G_LuaWriteString( const char *s, size_t l )
 
 /*
 ======================
-CL_LuaWriteLine
+G_LuaWriteLine
 ======================
 */
 void G_LuaWriteLine( void )
 {
-	g_luaLineBuf[g_luaLineBufLen] = '\n';
-	g_luaLineBuf[g_luaLineBufLen + 1] = '\0';
+	g_luaLineBuf[ g_luaLineBufLen ] = '\n';
+	g_luaLineBuf[ g_luaLineBufLen + 1 ] = '\0';
 	trap_Print( g_luaLineBuf );
 	g_luaLineBufLen = 0;
 }
@@ -110,7 +139,7 @@ void G_LuaInit( void )
 	g_luaState = luaL_newstate();
 	if ( !g_luaState )
 	{
-		G_Printf("G_LuaInit: failed\n");
+		G_Printf( "G_LuaInit: failed\n" );
 		return;
 	}
 
@@ -138,34 +167,34 @@ Svcmd_Lua_f
 */
 void Svcmd_Lua_f( void )
 {
-	char cmd[ 8 ];
+	char code[ MAX_TOKEN_CHARS ];
+	int n;
 
-	trap_Argv( 1, cmd, sizeof( cmd ) );
+	trap_Argv( -1, code, sizeof( code ) );
 
-	if ( !Q_stricmp( cmd, "eval" ) )
-	{
-		char code[ MAX_TOKEN_CHARS ];
-		trap_Argv( -2, code, sizeof( code ) );
+	lua_pushcfunction( g_luaState, G_LuaTraceback );
 
-		if ( luaL_dostring(g_luaState, code) )
-		{
-			G_Printf("lua eval: %s\n",
-			lua_tostring(g_luaState, -1));
-			lua_pop(g_luaState, 1);
-			return;
-		}
-	}
-	else if ( !Q_stricmp( cmd, "reset" ) )
+	if ( luaL_loadstring( g_luaState, code ) )
 	{
+		G_Printf( "lua eval: %s\n", lua_tostring( g_luaState, -1 ) );
+		lua_settop( g_luaState, 0 );
+		return;
 	}
-	else if ( !Q_stricmp( cmd, "run" ) )
+
+	if ( lua_pcall( g_luaState, 0, LUA_MULTRET, 1 ) )
 	{
+		G_Printf( "lua eval: %s\n", lua_tostring( g_luaState, -1 ) );
+		lua_settop( g_luaState, 0 );
+		return;
 	}
-	else
+	lua_remove( g_luaState, 1 );
+
+	if ( ( n = lua_gettop( g_luaState ) ) )
 	{
-		G_Printf( "usage: lua (eval <code>|reset|run <file>)\n" );
+		lua_getglobal( g_luaState, "print" );
+		lua_insert( g_luaState, 1 );
+		lua_call( g_luaState, n, 0 );
 	}
 }
 
 #endif /* Q3_VM */
-
