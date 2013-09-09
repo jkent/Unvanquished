@@ -632,7 +632,7 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
   int c;
   int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
   if (filename == NULL) {
-    lua_pushnil(L);
+    lua_pushliteral(L, "=nil");
     return errfile(L, "open", fnameindex);
   }
   else {
