@@ -162,7 +162,7 @@ void G_LuaInit( void )
 	lua_setglobal( g_luaState, "reinit" );
 	g_luaReinitPend = qfalse;
 
-	G_Printf( "Lua initialized\n" );
+	G_Printf( LUA_VERSION " initialized\n" );
 }
 
 /*
