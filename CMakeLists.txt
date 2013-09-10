@@ -811,6 +811,7 @@ set( GAMEGPP_LUALIB
   ${GPP_DIR}/game/lua/loslib.c
   ${GPP_DIR}/game/lua/lstrlib.c
   ${GPP_DIR}/game/lua/ltablib.c
+  ${GPP_DIR}/game/lua/lentitylib.c
   ${GPP_DIR}/game/lua/loadlib.c
   ${GPP_DIR}/game/lua/linit.c
 )
