@@ -235,8 +235,6 @@ static entityobj_var_t entityobj_var_list[] = {
 
 
 static int entityobj_index (lua_State *L) {
-  const char *key_list[] = {"bbox", "origin", NULL};
-  void (*func_list[])(lua_State *L, EntityObj *p) = {entityobj_bbox_getter, entityobj_origin_getter, NULL};
   EntityObj *p = toentityobj(L);
   const char *key = lua_tostring(L, 2);
   entityobj_var_t *var;
@@ -261,8 +259,6 @@ static int entityobj_index (lua_State *L) {
 
 
 static int entityobj_newindex (lua_State *L) {
-  const char *key_list[] = {"bbox", "origin", NULL};
-  void (*func_list[])(lua_State *L, EntityObj *p) = {NULL, entityobj_origin_setter, NULL};
   EntityObj *p = toentityobj(L);
   const char *key = lua_tostring(L, 2);
   entityobj_var_t *var;
