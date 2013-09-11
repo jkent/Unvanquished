@@ -170,36 +170,124 @@ static int entityobj_activate (lua_State *L) {
 }
 
 
-static int entityobj_box (lua_State *L) {
-	EntityObj *p = toentityobj(L);
-	int n;
+void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
+  int i;
 
-    lua_newtable(L);
-    for (n = 0; n < 3; n++) {
-      lua_pushnumber(L, p->entity->r.mins[n]);
-      lua_rawseti(L, -2, n + 1);
-    }
+  lua_newtable(L);
+  lua_pushinteger(L, 1);
+  lua_newtable(L);
+  for (i = 0; i < 3; i++) {
+    lua_pushinteger(L, i + 1);
+    lua_pushnumber(L, p->entity->r.mins[i]);
+    lua_settable(L, -3);
+  }
+  lua_settable(L, -3);
 
-    lua_newtable(L);
-    for (n = 0; n < 3; n++) {
-      lua_pushnumber(L, p->entity->r.maxs[n]);
-      lua_rawseti(L, -2, n + 1);
-    }
-
-    return 2;
+  lua_pushinteger(L, 2);
+  lua_newtable(L);
+  for (i = 0; i < 3; i++) {
+    lua_pushinteger(L, i + 1);
+    lua_pushnumber(L, p->entity->r.maxs[i]);
+    lua_settable(L, -3);
+  }
+  lua_settable(L, -3);
 }
 
 
-static int entityobj_origin (lua_State *L) {
-  EntityObj *p = toentityobj(L);
-  int n;
+void entityobj_origin_getter(lua_State *L, EntityObj *p) {
+  int i;
 
   lua_newtable(L);
-  for (n = 0; n < 3; n++) {
-    lua_pushnumber(L, p->entity->s.origin[n]);
-    lua_rawseti(L, -2, n + 1);
+  for (i = 0; i < 3; i++) {
+    lua_pushinteger(L, i + 1);
+    lua_pushnumber(L, p->entity->s.origin[i]);
+    lua_settable(L, -3);
   }
+}
+
+
+void entityobj_origin_setter(lua_State *L, EntityObj *p) {
+  vec3_t origin;
+  int i;
+
+  for (i = 0; i < 3; i++) {
+    lua_pushinteger(L, i + 1);
+    lua_gettable(L, -2);
+    origin[i] = (vec_t)lua_tonumber(L, -1);
+    lua_pop(L, 1);
+  }
+
+  G_SetOrigin(p->entity, origin);
+}
+
+
+typedef struct {
+  char *key;
+  void (*getter)(lua_State *L, EntityObj *p);
+  void (*setter)(lua_State *L, EntityObj *p);
+} entityobj_var_t;
+
+static entityobj_var_t entityobj_var_list[] = {
+  {"bbox",   entityobj_bbox_getter,   NULL                   },
+  {"origin", entityobj_origin_getter, entityobj_origin_setter},
+  {NULL,     NULL,                    NULL                   }
+};
+
+
+static int entityobj_index (lua_State *L) {
+  const char *key_list[] = {"bbox", "origin", NULL};
+  void (*func_list[])(lua_State *L, EntityObj *p) = {entityobj_bbox_getter, entityobj_origin_getter, NULL};
+  EntityObj *p = toentityobj(L);
+  const char *key = lua_tostring(L, 2);
+  entityobj_var_t *var;
+
+  if (luaL_getmetafield(L, 1, key))
+    return 1;
+
+  if (key) {
+    for (var = entityobj_var_list; var->key; var++) {
+      if (strcmp(var->key, key) == 0) {
+        if (!var->getter)
+          break;
+        var->getter(L, p);
+        return 1;
+      }
+    }
+  }
+
+  lua_pushnil(L);
   return 1;
+}
+
+
+static int entityobj_newindex (lua_State *L) {
+  const char *key_list[] = {"bbox", "origin", NULL};
+  void (*func_list[])(lua_State *L, EntityObj *p) = {NULL, entityobj_origin_setter, NULL};
+  EntityObj *p = toentityobj(L);
+  const char *key = lua_tostring(L, 2);
+  entityobj_var_t *var;
+
+  /* look up key */
+  if (key) {
+    /* disallow setting metamethods */
+    if (key[0] == '_' && key[1] == '_')
+      return 0;
+
+    for (var = entityobj_var_list; var->key; var++) {
+      if (strcmp(var->key, key) == 0) {
+        if (var->setter)
+          var->setter(L, p);
+        return 0;
+      }
+    }
+  }
+
+  /* else, set in table */
+  lua_getmetatable(L, 1);
+  lua_insert(L, 2);
+  lua_rawset(L, -3);
+
+  return 0;
 }
 
 
@@ -217,8 +305,8 @@ static const luaL_Reg entitylib[] = {
 */
 static const luaL_Reg entityobj[] = {
   {"activate", entityobj_activate},
-  {"box", entityobj_box},
-  {"origin", entityobj_origin},
+  {"__index", entityobj_index},
+  {"__newindex", entityobj_newindex},
   {"__tostring", entityobj_tostring},
   {NULL, NULL}
 };
@@ -226,10 +314,8 @@ static const luaL_Reg entityobj[] = {
 
 static void createmeta (lua_State *L) {
   luaL_newmetatable(L, ENTITYOBJ);  /* create metatable for entity objects */
-  lua_pushvalue(L, -1);  /* push metatable */
-  lua_setfield(L, -2, "__index");  /* metatable.__index = metatable */
-  luaL_setfuncs(L, entityobj, 0);  /* add file methods to new metatable */
-  lua_pop(L, 1);  /* pop new metatable */
+  luaL_setfuncs(L, entityobj, 0);  /* add methods to metatable */
+  lua_pop(L, 1);  /* pop metatable */
 
   luaL_newmetatable(L, ENTITYKEY);  /* create metatable for caching entity objects */
   lua_pushstring(L, "v");
