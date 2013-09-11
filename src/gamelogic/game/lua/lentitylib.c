@@ -49,7 +49,6 @@ Maryland 20850 USA.
 
 typedef struct {
   gentity_t *entity;
-  int test;
 } EntityObj;
 
 #define toentityobj(L)	((EntityObj *)luaL_checkudata(L, 1, ENTITYOBJ))
@@ -71,7 +70,6 @@ static EntityObj *pushentity (lua_State *L, gentity_t *entity) {
   lua_pop(L, 1);
   p = (EntityObj *)lua_newuserdata(L, sizeof(EntityObj));
   p->entity = entity;
-  p->test = -1;
   luaL_setmetatable(L, ENTITYOBJ);
   lua_pushvalue(L, -1);
   lua_rawsetp(L, -3, entity);
@@ -121,7 +119,6 @@ static int entity_find (lua_State *L) {
 
   switch (lua_type(L, 1)) {
   case LUA_TNIL:
-    name = NULL;
     classname = lua_tostring(L, 2);
     entity = G_IterateEntitiesOfClass(NULL, classname);
     break;
@@ -153,7 +150,7 @@ static int entity_find (lua_State *L) {
   if (!entity)
     lua_pushnil(L);
   else
-	pushentity(L, entity);
+    pushentity(L, entity);
 
   return 1;
 }
@@ -244,7 +241,7 @@ static void createmeta (lua_State *L) {
 
 
 LUAMOD_API int luaopen_entity (lua_State *L) {
-	luaL_newlib(L, entitylib);
-	createmeta(L);
-	return 1;
+  luaL_newlib(L, entitylib);
+  createmeta(L);
+  return 1;
 }
