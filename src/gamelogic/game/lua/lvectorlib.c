@@ -58,18 +58,17 @@ static vec_t *newvector (lua_State *L, int dim) {
 
 
 static int vector_distance (lua_State *L) {
-  vec_t *v1 = tovectorobj(L, 1);
-  vec_t *v2 = tovectorobj(L, 2);
-  int dim1 = getvectordim(L, 1);
-  int dim2 = getvectordim(L, 2);
+  vec_t *v[2];
+  int i, dim[2];
 
-  if (dim1 != 3)
-	return luaL_argerror(L, 1, VECTOROBJ " must have 3 dimensions");
+  for (i = 0; i < 2; i++) {
+    v[i] = tovectorobj(L, i + 1);
+    dim[i] = getvectordim(L, i + 1);
+    if (dim[i] != 3)
+      return luaL_argerror(L, i + 1, VECTOROBJ " with 3 dimensions required");
+  }
 
-  if (dim2 != 3)
-    return luaL_argerror(L, 2, VECTOROBJ " must have 3 dimensions");
-
-  lua_pushnumber(L, (lua_Number)Distance(v1, v2));
+  lua_pushnumber(L, (lua_Number)Distance(v[0], v[1]));
   return 1;
 }
 
