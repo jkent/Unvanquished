@@ -265,25 +265,15 @@ static int entityobj_newindex (lua_State *L) {
   const char *key = lua_tostring(L, 2);
   entityobj_var_t *var;
 
-  /* look up key */
+  /* find a setter */
   if (key) {
-    /* disallow setting metamethods */
-    if (key[0] == '_' && key[1] == '_')
-      return 0;
-
     for (var = entityobj_var_list; var->key; var++) {
       if (strcmp(var->key, key) == 0) {
         if (var->setter)
           var->setter(L, p);
-        return 0;
       }
     }
   }
-
-  /* else, set in table */
-  lua_getmetatable(L, 1);
-  lua_insert(L, 2);
-  lua_rawset(L, -3);
 
   return 0;
 }
