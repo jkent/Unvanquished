@@ -74,42 +74,43 @@ static int vector_distance (lua_State *L) {
 
 
 static int vector_call (lua_State *L) {
-  int nargs = lua_gettop(L) - 1;
-  int i, isnum;
-  vec_t *v;
+  int i, dim, isnum;
+  vec_t *v, *vo;
 
-  luaL_checkany(L, 2);
-
-  if (nargs == 1) {
-    switch (lua_type(L, 2)) {
-    case LUA_TTABLE:
-      lua_len(L, 2);
-      nargs = lua_tointeger(L, -1);
-      lua_pop(L, 1);
-      v = newvector(L, nargs);
-      for (i = 0, isnum = 1; isnum && i < nargs; i++) {
-    	lua_pushinteger(L, i + 1);
-    	lua_gettable(L, 2);
-        v[i] = (vec_t)lua_tonumberx(L, -1, &isnum);
-        lua_pop(L, 1);
-      }
-      if (!isnum) {
-        const char *msg = lua_pushfstring(L, "expected %s at table index %d",
-                                          lua_typename(L, LUA_TNUMBER), i + 1);
-        return luaL_argerror(L, 2, msg);
-
-      }
-      return 1;
-
-    case LUA_TUSERDATA:
-      return 0;
-      break;
+  switch (lua_type(L, 2)) {
+  case LUA_TTABLE:
+	dim = lua_rawlen(L, 2);
+    v = newvector(L, dim);
+    for (i = 0, isnum = 1; isnum && i < dim; i++) {
+      lua_pushinteger(L, i + 1);
+      lua_rawget(L, 2);
+      v[i] = (vec_t)lua_tonumberx(L, -1, &isnum);
     }
+    if (!isnum) {
+      const char *msg = lua_pushfstring(L, "%s expected at table index %d",
+                                        lua_typename(L, LUA_TNUMBER), i);
+      return luaL_argerror(L, 2, msg);
+    }
+    lua_pop(L, dim);
+    break;
+
+  case LUA_TUSERDATA:
+    vo = tovectorobj(L, 2);
+    dim = getvectordim(L, 2);
+    v = newvector(L, dim);
+    memcpy(v, vo, sizeof(vec_t) * dim);
+    break;
+
+  case LUA_TNUMBER:
+    dim = lua_tointeger(L, 2);
+    v = newvector(L, dim);
+    memset(v, 0, sizeof(vec_t) * dim);
+    break;
+
+  default:
+    lua_pushnil(L);
   }
 
-  v = newvector(L, nargs);
-  for (i = 0, isnum = 1; isnum && i < nargs; i++)
-    v[i] = (vec_t)luaL_checknumber(L, i + 2);
   return 1;
 }
 
