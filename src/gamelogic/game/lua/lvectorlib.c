@@ -73,7 +73,7 @@ static int vector_call (lua_State *L) {
 
   switch (lua_type(L, 2)) {
   case LUA_TTABLE:
-	dim = lua_rawlen(L, 2);
+    dim = lua_rawlen(L, 2);
     v = lua_newvector(L, dim);
     for (i = 0, isnum = 1; isnum && i < dim; i++) {
       lua_pushinteger(L, i + 1);
@@ -145,7 +145,7 @@ static int vectorobj_add (lua_State *L) {
     return 1;
   }
   else
-	return luaL_error(L, "invalid operand");
+    return luaL_error(L, "invalid operand");
 }
 
 
@@ -185,7 +185,7 @@ static int vectorobj_sub (lua_State *L) {
     return 1;
   }
   else
-	return luaL_error(L, "invalid operand");
+    return luaL_error(L, "invalid operand");
 }
 
 
