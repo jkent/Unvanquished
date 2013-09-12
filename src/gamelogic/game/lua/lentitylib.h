@@ -42,4 +42,4 @@ Maryland 20850 USA.
 LUAMOD_API int (luaopen_entity) (lua_State *L);
 
 
-#endif /* lunvlib_h */
+#endif /* lentitylib_h */

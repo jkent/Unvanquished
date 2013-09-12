@@ -45,7 +45,7 @@ Maryland 20850 USA.
 
 
 #define ENTITYKEY "_ENTITIES"
-#define ENTITYOBJ "ENTITY*"
+#define ENTITYOBJ "gentity_t*"
 
 typedef struct {
   gentity_t *entity;
@@ -158,7 +158,7 @@ static int entity_find (lua_State *L) {
 
 static int entityobj_tostring (lua_State *L) {
   EntityObj *p = toentityobj(L);
-  lua_pushfstring(L, "entity %s", etos(p->entity));
+  lua_pushfstring(L, ENTITYOBJ " %s", etos(p->entity));
   return 1;
 }
 
