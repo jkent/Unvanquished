@@ -97,6 +97,10 @@ static int vector_call (lua_State *L) {
 
   case LUA_TNUMBER:
     dim = lua_tointeger(L, 2);
+    if (dim <= 0) {
+      lua_pushnil(L);
+      break;
+    }
     v = lua_newvector(L, dim);
     memset(v, 0, sizeof(vec_t) * dim);
     break;
