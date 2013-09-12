@@ -67,6 +67,27 @@ static int vector_distance (lua_State *L) {
 }
 
 
+static int vector_dotproduct (lua_State *L) {
+  vec_t n, *v[2];
+  int i, dim[2];
+
+  for (i = 0; i < 2; i++) {
+    v[i] = lua_tovectorobj(L, i + 1);
+    dim[i] = lua_getvectordim(L, i + 1);
+  }
+
+  if (dim[0] != dim[1])
+    return luaL_error(L, "both " LUA_VECTOROBJ " must have the same dimension");
+
+  n = 0;
+  for (i = 0; i < dim[0]; i++)
+	n += v[0][i] * v[1][i];
+
+  lua_pushnumber(L, (lua_Number)n);
+  return 1;
+}
+
+
 static int vector_call (lua_State *L) {
   int i, dim, isnum;
   vec_t *v, *vo;
@@ -110,6 +131,22 @@ static int vector_call (lua_State *L) {
   }
 
   return 1;
+}
+
+
+static int vectorobj_normalize (lua_State *L) {
+  vec_t length, *vo, *v = lua_tovectorobj(L, 1);
+  int i, dim = lua_getvectordim(L, 1);
+
+  if (dim != 3)
+    return luaL_argerror(L, 1, LUA_VECTOROBJ " with 3 dimensions required");
+
+  vo = lua_newvector(L, dim);
+  memcpy(vo, v, sizeof(vec_t) * dim);
+  length = VectorNormalize(vo);
+  lua_pushnumber(L, (lua_Number)length);
+
+  return 2;
 }
 
 
@@ -202,6 +239,46 @@ static int vectorobj_len (lua_State *L) {
 }
 
 
+static int vectorobj_mul (lua_State *L) {
+  vec_t n, *v[3];
+  int i, type[2], dim[2];
+
+  for (i = 0; i < 2; i++) {
+    type[i] = lua_type(L, i + 1);
+    switch (type[i]) {
+    case LUA_TNUMBER:
+      n = (vec_t)lua_tonumber(L, i + 1);
+      break;
+    case LUA_TUSERDATA:
+      v[i] = lua_tovectorobj(L, i + 1);
+      dim[i] = lua_getvectordim(L, i + 1);
+    }
+  }
+
+  if (type[0] == LUA_TNUMBER && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[1]);
+    for (i = 0; i < dim[1]; i++)
+      v[2][i] = n * v[1][i];
+    return 1;
+  }
+  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TNUMBER) {
+    v[2] = lua_newvector(L, dim[0]);
+    for (i = 0; i < dim[0]; i++)
+      v[2][i] = v[0][i] * n;
+    return 1;
+  }
+  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[0]);
+    if (dim[0] != 3 || dim[1] != 3)
+      return luaL_error(L, "both " LUA_VECTOROBJ " must have 3 dimensions");
+    CrossProduct(v[0], v[1], v[2]);
+    return 1;
+  }
+  else
+    return luaL_error(L, "invalid operand");
+}
+
+
 static int vectorobj_newindex (lua_State *L) {
   vec_t *v = lua_tovectorobj(L, 1);
   int i, dim = lua_getvectordim(L, 1);
@@ -289,11 +366,27 @@ static int vectorobj_tostring (lua_State *L) {
 }
 
 
+static int vectorobj_unm (lua_State *L) {
+  vec_t *v[2];
+  int i, dim;
+
+  v[0] = lua_tovectorobj(L, 1);
+  dim = lua_getvectordim(L, 2);
+
+  v[1] = lua_newvector(L, dim);
+  for (i = 0; i < dim; i++)
+    v[1][i] = -v[0][i];
+
+  return 1;
+}
+
+
 /*
 ** functions for 'vector' library
 */
 static const luaL_Reg vectorlib[] = {
   {"distance", vector_distance},
+  {"dotproduct", vector_dotproduct},
   {"__call", vector_call},
   {NULL, NULL}
 };
@@ -303,12 +396,15 @@ static const luaL_Reg vectorlib[] = {
 ** methods for vectors
 */
 static const luaL_Reg vectorobj[] = {
+  {"normalize", vectorobj_normalize},
   {"__add", vectorobj_add},
   {"__index", vectorobj_index},
   {"__len", vectorobj_len},
+  {"__mul", vectorobj_mul},
   {"__newindex", vectorobj_newindex},
   {"__sub", vectorobj_sub},
   {"__tostring", vectorobj_tostring},
+  {"__unm", vectorobj_unm},
   {NULL, NULL}
 };
 
