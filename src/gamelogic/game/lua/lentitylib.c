@@ -40,6 +40,7 @@ Maryland 20850 USA.
 
 #include "lauxlib.h"
 #include "lentitylib.h"
+#include "lvectorlib.h"
 
 #include "../g_local.h"
 
@@ -171,53 +172,37 @@ static int entityobj_activate (lua_State *L) {
 
 
 void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
-  int i;
+  vec_t *v;
 
   lua_newtable(L);
   lua_pushinteger(L, 1);
-  lua_newtable(L);
-  for (i = 0; i < 3; i++) {
-    lua_pushinteger(L, i + 1);
-    lua_pushnumber(L, p->entity->r.mins[i]);
-    lua_settable(L, -3);
-  }
+  v = lua_newvector(L, 3);
+  memcpy(v, p->entity->r.mins, sizeof(vec_t) * 3);
   lua_settable(L, -3);
 
   lua_pushinteger(L, 2);
-  lua_newtable(L);
-  for (i = 0; i < 3; i++) {
-    lua_pushinteger(L, i + 1);
-    lua_pushnumber(L, p->entity->r.maxs[i]);
-    lua_settable(L, -3);
-  }
+  v = lua_newvector(L, 3);
+  memcpy(v, p->entity->r.maxs, sizeof(vec_t) * 3);
   lua_settable(L, -3);
 }
 
 
 void entityobj_origin_getter(lua_State *L, EntityObj *p) {
-  int i;
+  vec_t *v;
 
-  lua_newtable(L);
-  for (i = 0; i < 3; i++) {
-    lua_pushinteger(L, i + 1);
-    lua_pushnumber(L, p->entity->s.origin[i]);
-    lua_settable(L, -3);
-  }
+  v = lua_newvector(L, 3);
+  memcpy(v, p->entity->s.origin, sizeof(vec_t) * 3);
 }
 
 
 void entityobj_origin_setter(lua_State *L, EntityObj *p) {
-  vec3_t origin;
-  int i;
+  vec_t *v;
 
-  for (i = 0; i < 3; i++) {
-    lua_pushinteger(L, i + 1);
-    lua_gettable(L, -2);
-    origin[i] = (vec_t)lua_tonumber(L, -1);
-    lua_pop(L, 1);
-  }
-
-  G_SetOrigin(p->entity, origin);
+  v = lua_tovectorobj(L, 3);
+  if (lua_getvectordim(L, 3) == 3)
+    G_SetOrigin(p->entity, v);
+  else
+    luaL_argerror(L, 3, LUA_VECTOROBJ " with 3 dimensions required");
 }
 
 
