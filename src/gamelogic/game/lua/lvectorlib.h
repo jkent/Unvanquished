@@ -36,10 +36,17 @@ Maryland 20850 USA.
 #define lvectorlib_h
 
 #include "lua.h"
+#include "../g_local.h"
 
 
 #define LUA_VECTORLIBNAME "vector"
+#define LUA_VECTOROBJ "vec_t*"
+
+#define lua_tovectorobj(L, n)	((vec_t *)luaL_checkudata(L, n, LUA_VECTOROBJ))
+#define lua_getvectordim(L, n)	(lua_rawlen(L, n) / sizeof(vec_t))
+
 LUAMOD_API int (luaopen_vector) (lua_State *L);
+vec_t *lua_newvector (lua_State *L, int dim);
 
 
 #endif /* lvectorlib_h */

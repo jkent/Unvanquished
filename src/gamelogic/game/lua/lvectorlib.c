@@ -38,21 +38,15 @@ Maryland 20850 USA.
 #include "lua.h"
 
 #include "lauxlib.h"
-#include "lentitylib.h"
+#include "lvectorlib.h"
 
 #include "../g_local.h"
 
 
-#define VECTOROBJ "vec_t*"
-
-#define tovectorobj(L, n)	((vec_t *)luaL_checkudata(L, n, VECTOROBJ))
-#define getvectordim(L, n)	(lua_rawlen(L, n) / sizeof(vec_t))
-
-
-static vec_t *newvector (lua_State *L, int dim) {
+vec_t *lua_newvector (lua_State *L, int dim) {
   vec_t *v = (vec_t *)lua_newuserdata(L, sizeof(vec_t) * dim);
   memset(v, 0, sizeof(vec_t) * dim);
-  luaL_setmetatable(L, VECTOROBJ);
+  luaL_setmetatable(L, LUA_VECTOROBJ);
   return v;
 }
 
@@ -62,10 +56,10 @@ static int vector_distance (lua_State *L) {
   int i, dim[2];
 
   for (i = 0; i < 2; i++) {
-    v[i] = tovectorobj(L, i + 1);
-    dim[i] = getvectordim(L, i + 1);
+    v[i] = lua_tovectorobj(L, i + 1);
+    dim[i] = lua_getvectordim(L, i + 1);
     if (dim[i] != 3)
-      return luaL_argerror(L, i + 1, VECTOROBJ " with 3 dimensions required");
+      return luaL_argerror(L, i + 1, LUA_VECTOROBJ " with 3 dimensions required");
   }
 
   lua_pushnumber(L, (lua_Number)Distance(v[0], v[1]));
@@ -80,7 +74,7 @@ static int vector_call (lua_State *L) {
   switch (lua_type(L, 2)) {
   case LUA_TTABLE:
 	dim = lua_rawlen(L, 2);
-    v = newvector(L, dim);
+    v = lua_newvector(L, dim);
     for (i = 0, isnum = 1; isnum && i < dim; i++) {
       lua_pushinteger(L, i + 1);
       lua_rawget(L, 2);
@@ -95,15 +89,15 @@ static int vector_call (lua_State *L) {
     break;
 
   case LUA_TUSERDATA:
-    vo = tovectorobj(L, 2);
-    dim = getvectordim(L, 2);
-    v = newvector(L, dim);
+    vo = lua_tovectorobj(L, 2);
+    dim = lua_getvectordim(L, 2);
+    v = lua_newvector(L, dim);
     memcpy(v, vo, sizeof(vec_t) * dim);
     break;
 
   case LUA_TNUMBER:
     dim = lua_tointeger(L, 2);
-    v = newvector(L, dim);
+    v = lua_newvector(L, dim);
     memset(v, 0, sizeof(vec_t) * dim);
     break;
 
@@ -116,8 +110,8 @@ static int vector_call (lua_State *L) {
 
 
 static int vectorobj_index (lua_State *L) {
-  vec_t *v = tovectorobj(L, 1);
-  int i, dim = getvectordim(L, 1);
+  vec_t *v = lua_tovectorobj(L, 1);
+  int i, dim = lua_getvectordim(L, 1);
   const char *key;
 
   switch (lua_type(L, 2)) {
@@ -156,16 +150,16 @@ static int vectorobj_index (lua_State *L) {
 
 
 static int vectorobj_len (lua_State *L) {
-  vec_t *v = tovectorobj(L, 1);
-  int dim = getvectordim(L, 1);
+  vec_t *v = lua_tovectorobj(L, 1);
+  int dim = lua_getvectordim(L, 1);
   lua_pushinteger(L, dim);
   return 1;
 }
 
 
 static int vectorobj_newindex (lua_State *L) {
-  vec_t *v = tovectorobj(L, 1);
-  int i, dim = getvectordim(L, 1);
+  vec_t *v = lua_tovectorobj(L, 1);
+  int i, dim = lua_getvectordim(L, 1);
   const char *key;
 
   switch (lua_type(L, 2)) {
@@ -190,12 +184,12 @@ static int vectorobj_newindex (lua_State *L) {
 
 
 static int vectorobj_tostring (lua_State *L) {
-  vec_t *v = tovectorobj(L, 1);
-  int i, dim = getvectordim(L, 1);
+  vec_t *v = lua_tovectorobj(L, 1);
+  int i, dim = lua_getvectordim(L, 1);
   luaL_Buffer b;
 
   luaL_buffinit(L, &b);
-  lua_pushfstring(L, VECTOROBJ "[%d] {", dim);
+  lua_pushfstring(L, LUA_VECTOROBJ "[%d] {", dim);
   luaL_addvalue(&b);
   for (i = 0; i < dim; i++) {
     if (i < dim - 1)
@@ -235,7 +229,7 @@ static void createmeta (lua_State *L) {
   lua_pushvalue(L, -1);
   lua_setmetatable(L, -2);  /* library as its own metatable */
 
-  luaL_newmetatable(L, VECTOROBJ);  /* create metatable for vector objects */
+  luaL_newmetatable(L, LUA_VECTOROBJ);  /* create metatable for vector objects */
   luaL_setfuncs(L, vectorobj, 0);  /* add methods to metatable */
   lua_pop(L, 1);  /* pop metatable */
 }
