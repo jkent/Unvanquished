@@ -32,7 +32,7 @@ Maryland 20850 USA.
 ===========================================================================
 */
 
-#define lentitylib_c
+#define lvectorlib_c
 #define LUA_LIB
 
 #include "lua.h"
@@ -150,47 +150,6 @@ static int vectorobj_add (lua_State *L) {
 }
 
 
-static int vectorobj_sub (lua_State *L) {
-  vec_t n, *v[3];
-  int i, type[2], dim[2];
-
-  for (i = 0; i < 2; i++) {
-    type[i] = lua_type(L, i + 1);
-    switch (type[i]) {
-    case LUA_TNUMBER:
-      n = (vec_t)lua_tonumber(L, i + 1);
-      break;
-    case LUA_TUSERDATA:
-      v[i] = lua_tovectorobj(L, i + 1);
-      dim[i] = lua_getvectordim(L, i + 1);
-    }
-  }
-
-  if (type[0] == LUA_TNUMBER && type[1] == LUA_TUSERDATA) {
-    v[2] = lua_newvector(L, dim[1]);
-    for (i = 0; i < dim[1]; i++)
-      v[2][i] = n - v[1][i];
-    return 1;
-  }
-  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TNUMBER) {
-    v[2] = lua_newvector(L, dim[0]);
-    for (i = 0; i < dim[0]; i++)
-      v[2][i] = v[0][i] - n;
-    return 1;
-  }
-  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TUSERDATA) {
-    v[2] = lua_newvector(L, dim[0]);
-    if (dim[0] != dim[1])
-      return luaL_error(L, "both " LUA_VECTOROBJ " must have the same dimension");
-    for (i = 0; i < dim[0]; i++)
-      v[2][i] = v[0][i] - v[1][i];
-    return 1;
-  }
-  else
-    return luaL_error(L, "invalid operand");
-}
-
-
 static int vectorobj_index (lua_State *L) {
   vec_t *v = lua_tovectorobj(L, 1);
   int i, dim = lua_getvectordim(L, 1);
@@ -265,6 +224,47 @@ static int vectorobj_newindex (lua_State *L) {
 }
 
 
+static int vectorobj_sub (lua_State *L) {
+  vec_t n, *v[3];
+  int i, type[2], dim[2];
+
+  for (i = 0; i < 2; i++) {
+    type[i] = lua_type(L, i + 1);
+    switch (type[i]) {
+    case LUA_TNUMBER:
+      n = (vec_t)lua_tonumber(L, i + 1);
+      break;
+    case LUA_TUSERDATA:
+      v[i] = lua_tovectorobj(L, i + 1);
+      dim[i] = lua_getvectordim(L, i + 1);
+    }
+  }
+
+  if (type[0] == LUA_TNUMBER && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[1]);
+    for (i = 0; i < dim[1]; i++)
+      v[2][i] = n - v[1][i];
+    return 1;
+  }
+  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TNUMBER) {
+    v[2] = lua_newvector(L, dim[0]);
+    for (i = 0; i < dim[0]; i++)
+      v[2][i] = v[0][i] - n;
+    return 1;
+  }
+  else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[0]);
+    if (dim[0] != dim[1])
+      return luaL_error(L, "both " LUA_VECTOROBJ " must have the same dimension");
+    for (i = 0; i < dim[0]; i++)
+      v[2][i] = v[0][i] - v[1][i];
+    return 1;
+  }
+  else
+    return luaL_error(L, "invalid operand");
+}
+
+
 static int vectorobj_tostring (lua_State *L) {
   vec_t *v = lua_tovectorobj(L, 1);
   int i, dim = lua_getvectordim(L, 1);
@@ -300,10 +300,10 @@ static const luaL_Reg vectorlib[] = {
 */
 static const luaL_Reg vectorobj[] = {
   {"__add", vectorobj_add},
-  {"__sub", vectorobj_sub},
   {"__index", vectorobj_index},
   {"__len", vectorobj_len},
   {"__newindex", vectorobj_newindex},
+  {"__sub", vectorobj_sub},
   {"__tostring", vectorobj_tostring},
   {NULL, NULL}
 };
