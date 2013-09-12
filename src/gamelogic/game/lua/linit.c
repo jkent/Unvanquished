@@ -21,6 +21,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 #include "lentitylib.h"
+#include "lvectorlib.h"
 
 
 /*
@@ -39,6 +40,7 @@ static const luaL_Reg loadedlibs[] = {
   {LUA_MATHLIBNAME, luaopen_math},
   {LUA_DBLIBNAME, luaopen_debug},
   {LUA_ENTITYLIBNAME, luaopen_entity},
+  {LUA_VECTORLIBNAME, luaopen_vector},
   {NULL, NULL}
 };
 
