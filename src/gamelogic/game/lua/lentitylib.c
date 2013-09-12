@@ -239,10 +239,12 @@ static int entityobj_index (lua_State *L) {
   const char *key = lua_tostring(L, 2);
   entityobj_var_t *var;
 
-  if (luaL_getmetafield(L, 1, key))
-    return 1;
-
   if (key) {
+    /* try to fetch from metatable */
+    if (luaL_getmetafield(L, 1, key))
+      return 1;
+
+    /* else, find a getter */
     for (var = entityobj_var_list; var->key; var++) {
       if (strcmp(var->key, key) == 0) {
         if (!var->getter)
