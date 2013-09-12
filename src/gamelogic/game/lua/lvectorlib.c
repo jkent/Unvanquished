@@ -138,6 +138,7 @@ static int vectorobj_add (lua_State *L) {
     return 1;
   }
   else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[0]);
     if (dim[0] != dim[1])
       return luaL_error(L, "both " LUA_VECTOROBJ " must have the same dimension");
     for (i = 0; i < dim[0]; i++)
@@ -178,6 +179,7 @@ static int vectorobj_sub (lua_State *L) {
     return 1;
   }
   else if (type[0] == LUA_TUSERDATA && type[1] == LUA_TUSERDATA) {
+    v[2] = lua_newvector(L, dim[0]);
     if (dim[0] != dim[1])
       return luaL_error(L, "both " LUA_VECTOROBJ " must have the same dimension");
     for (i = 0; i < dim[0]; i++)
