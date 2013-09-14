@@ -140,14 +140,14 @@ static int entity_iterate (lua_State *L) {
 static int entity_find (lua_State *L) {
   gentity_t *entity = NULL;
   const char *name, *classname;
-  vec3_t origin;
+  vec_t *v;
   int i;
 
   luaL_checkany(L, 1);
+  classname = lua_tostring(L, 2);
 
   switch (lua_type(L, 1)) {
   case LUA_TNIL:
-    classname = lua_tostring(L, 2);
     entity = G_IterateEntitiesOfClass(NULL, classname);
     break;
 
@@ -159,19 +159,14 @@ static int entity_find (lua_State *L) {
 
   case LUA_TSTRING:
     name = lua_tostring(L, 1);
-    classname = lua_tostring(L, 2);
     entity = G_IterateEntitiesOfNameAndClass(NULL, name, classname);
     break;
 
-  case LUA_TTABLE:
-    for (i = 0; i < 3; i++) {
-      lua_pushinteger(L, i + 1);
-      lua_gettable(L, 1);
-      origin[i] = (vec_t)lua_tonumber(L, -1);
-      lua_pop(L, 1);
-    }
-    classname = lua_tostring(L, 2);
-    entity = G_FindClosestEntityOfClass(origin, classname);
+  case LUA_TUSERDATA:
+	v = lua_tovectorobj(L, 1);
+	if (lua_getvectordim(L, 1) != 3)
+      luaL_argerror(L, 1, LUA_VECTOROBJ " with 3 dimensions required");
+	entity = G_FindClosestEntityOfClass(v, classname);
     break;
   }
 
@@ -215,17 +210,13 @@ void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
 
 
 void entityobj_origin_getter(lua_State *L, EntityObj *p) {
-  vec_t *v;
-
-  v = lua_newvector(L, 3);
+  vec_t *v = lua_newvector(L, 3);
   memcpy(v, p->entity->s.origin, sizeof(vec_t) * 3);
 }
 
 
 void entityobj_origin_setter(lua_State *L, EntityObj *p) {
-  vec_t *v;
-
-  v = lua_tovectorobj(L, 3);
+  vec_t *v = lua_tovectorobj(L, 3);
   if (lua_getvectordim(L, 3) == 3)
     G_SetOrigin(p->entity, v);
   else

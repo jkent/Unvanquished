@@ -81,7 +81,7 @@ static int vector_dotproduct (lua_State *L) {
 
   n = 0;
   for (i = 0; i < dim[0]; i++)
-	n += v[0][i] * v[1][i];
+    n += v[0][i] * v[1][i];
 
   lua_pushnumber(L, (lua_Number)n);
   return 1;
@@ -232,8 +232,10 @@ static int vectorobj_index (lua_State *L) {
 
 
 static int vectorobj_len (lua_State *L) {
-  vec_t *v = lua_tovectorobj(L, 1);
-  int dim = lua_getvectordim(L, 1);
+  int dim;
+
+  lua_tovectorobj(L, 1);  /* check that we have a vector object */
+  dim = lua_getvectordim(L, 1);
   lua_pushinteger(L, dim);
   return 1;
 }
