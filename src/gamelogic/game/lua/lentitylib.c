@@ -110,6 +110,33 @@ static gentity_t *G_IterateEntitiesOfNameAndClass( gentity_t *entity, const char
 }
 
 
+static int entity_iterator (lua_State *L) {
+  EntityObj *p = (EntityObj *)lua_touserdata(L, lua_upvalueindex(1));
+  const char *classname = lua_tostring(L, lua_upvalueindex(2));
+  gentity_t *entity = NULL;
+
+  if (p)
+    entity = p->entity;
+
+  entity = G_IterateEntitiesOfClass(entity, classname);
+  if (!entity)
+    return 0;
+
+  pushentity(L, entity);
+  lua_pushvalue(L, -1);
+  lua_replace(L, lua_upvalueindex(1));
+  return 1;
+}
+
+
+static int entity_iterate (lua_State *L) {
+  lua_pushnil(L);
+  lua_pushvalue(L, 1);
+  lua_pushcclosure(L, entity_iterator, 2);
+  return 1;
+}
+
+
 static int entity_find (lua_State *L) {
   gentity_t *entity = NULL;
   const char *name, *classname;
@@ -269,6 +296,7 @@ static int entityobj_newindex (lua_State *L) {
 */
 static const luaL_Reg entitylib[] = {
   {"find", entity_find},
+  {"iterate", entity_iterate},
   {NULL, NULL}
 };
 
