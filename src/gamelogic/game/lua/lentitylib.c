@@ -201,7 +201,13 @@ static int entityobj_tostring (lua_State *L) {
 
 static int entityobj_activate (lua_State *L) {
   EntityObj *p = toentityobj(L);
-  G_FireEntity( p->entity, NULL );
+  gentity_t *world = &g_entities[ENTITYNUM_WORLD];
+  if (p->entity->act) {
+    p->entity->nextAct = 0;
+    p->entity->active = qtrue;
+    p->entity->act(p->entity, world, world);
+    p->entity->active = qfalse;
+  }
   return 0;
 }
 
