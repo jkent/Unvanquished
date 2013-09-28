@@ -193,7 +193,7 @@ static int entityobj_activate (lua_State *L) {
 }
 
 
-void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
+static void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
   vec_t *v;
 
   lua_newtable(L);
@@ -209,13 +209,13 @@ void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
 }
 
 
-void entityobj_origin_getter(lua_State *L, EntityObj *p) {
+static void entityobj_origin_getter(lua_State *L, EntityObj *p) {
   vec_t *v = lua_newvector(L, 3);
   memcpy(v, p->entity->s.origin, sizeof(vec_t) * 3);
 }
 
 
-void entityobj_origin_setter(lua_State *L, EntityObj *p) {
+static void entityobj_origin_setter(lua_State *L, EntityObj *p) {
   vec_t *v = lua_tovectorobj(L, 3);
   if (lua_getvectordim(L, 3) == 3)
     G_SetOrigin(p->entity, v);
