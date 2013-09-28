@@ -110,6 +110,19 @@ static gentity_t *G_IterateEntitiesOfNameAndClass( gentity_t *entity, const char
 }
 
 
+void G_SetAngles( gentity_t *self, const vec3_t angles )
+{
+	VectorCopy(angles, self->s.apos.trBase);
+	self->s.apos.trType = TR_STATIONARY;
+	self->s.apos.trTime = 0;
+	self->s.apos.trDuration = 0;
+	VectorClear(self->s.apos.trDelta);
+
+	VectorCopy(angles, self->r.currentAngles);
+	VectorCopy(angles, self->s.angles);
+}
+
+
 static int entity_iterator (lua_State *L) {
   EntityObj *p = (EntityObj *)lua_touserdata(L, lua_upvalueindex(1));
   const char *classname = lua_tostring(L, lua_upvalueindex(2));
@@ -193,6 +206,23 @@ static int entityobj_activate (lua_State *L) {
 }
 
 
+static void entityobj_angles_getter(lua_State *L, EntityObj *p) {
+  vec_t *v = lua_newvector(L, 3);
+  memcpy(v, p->entity->s.angles, sizeof(vec_t) * 3);
+}
+
+
+static void entityobj_angles_setter(lua_State *L, EntityObj *p) {
+  vec_t *v = lua_tovectorobj(L, 3);
+  if (lua_getvectordim(L, 3) == 3) {
+    G_SetAngles(p->entity, v);
+    trap_LinkEntity(p->entity);
+  }
+  else
+    luaL_argerror(L, 3, LUA_VECTOROBJ " with 3 dimensions required");
+}
+
+
 static void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
   vec_t *v;
 
@@ -233,6 +263,7 @@ typedef struct {
 } entityobj_var_t;
 
 static entityobj_var_t entityobj_var_list[] = {
+  {"angles", entityobj_angles_getter, entityobj_angles_setter},
   {"bbox",   entityobj_bbox_getter,   NULL                   },
   {"origin", entityobj_origin_getter, entityobj_origin_setter},
   {NULL,     NULL,                    NULL                   }
