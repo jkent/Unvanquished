@@ -1264,6 +1264,7 @@ const char *G_quoted_admin_name( gentity_t *ent );
 extern lua_State *g_luaState;
 void G_LuaInit( void );
 void G_LuaCleanup( void );
+int G_LuaTraceback( lua_State *L );
 void Svcmd_Lua_f( void );
 #endif /* Q3_VM */
 

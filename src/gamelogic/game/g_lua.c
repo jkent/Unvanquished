@@ -55,7 +55,7 @@ G_LuaTraceback
 A lua_CFunction that takes an error string and returns a string containing
 the error string and lua stack traceback appended.
 */
-static int G_LuaTraceback( lua_State *L )
+int G_LuaTraceback( lua_State *L )
 {
 	lua_getglobal( L, "debug");
 	if ( !lua_istable( L, -1 ) )
