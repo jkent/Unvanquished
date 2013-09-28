@@ -217,8 +217,10 @@ static void entityobj_origin_getter(lua_State *L, EntityObj *p) {
 
 static void entityobj_origin_setter(lua_State *L, EntityObj *p) {
   vec_t *v = lua_tovectorobj(L, 3);
-  if (lua_getvectordim(L, 3) == 3)
+  if (lua_getvectordim(L, 3) == 3) {
     G_SetOrigin(p->entity, v);
+    trap_LinkEntity(p->entity);
+  }
   else
     luaL_argerror(L, 3, LUA_VECTOROBJ " with 3 dimensions required");
 }
