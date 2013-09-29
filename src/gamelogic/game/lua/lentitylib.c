@@ -119,27 +119,27 @@ done:
 
 static gentity_t *G_FindClosestEntityOfClass( vec3_t origin, const char *classname )
 {
-	gentity_t *ent = NULL;
-	gentity_t *closestEnt = NULL;
+	gentity_t *entity = NULL;
+	gentity_t *closestEntity = NULL;
 	float d, nd;
 
-	while ( ( ent = G_IterateEntitiesOfClass( ent, classname ) ) )
+	while ( ( entity = G_IterateEntities( entity, classname, qfalse, 0, NULL ) ) )
 	{
-		nd = DistanceSquared( origin, ent->s.origin );
+		nd = DistanceSquared( origin, entity->s.origin );
 
-		if ( !closestEnt || nd < d )
+		if ( !closestEntity || nd < d )
 		{
 			d = nd;
-			closestEnt = ent;
+			closestEntity = entity;
 		}
 	}
-	return closestEnt;
+	return closestEntity;
 }
 
 
 static gentity_t *G_IterateEntitiesOfNameAndClass( gentity_t *entity, const char *name, const char *classname )
 {
-	while ( ( entity = G_IterateEntitiesOfClass( entity, classname ) ) )
+	while ( ( entity = G_IterateEntities( entity, classname, qfalse, 0, NULL ) ) )
 	{
 		if ( G_MatchesName( entity, name ) )
 			return entity;
@@ -169,7 +169,7 @@ static int entity_iterator (lua_State *L) {
   if (p)
     entity = p->entity;
 
-  entity = G_IterateEntitiesOfClass(entity, classname);
+  entity = G_IterateEntities(entity, classname, qfalse, 0, NULL);
   if (!entity)
     return 0;
 
