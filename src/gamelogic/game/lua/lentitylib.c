@@ -50,7 +50,7 @@ Maryland 20850 USA.
 
 typedef struct {
   gentity_t *entity;
-  void (*pain)(gentity_t *self, gentity_t *attacker, int damage);
+  void (*oldPain)(gentity_t *self, gentity_t *attacker, int damage);
 } EntityObj;
 
 #define toentityobj(L)	((EntityObj *)luaL_checkudata(L, 1, ENTITYOBJ))
@@ -71,6 +71,7 @@ static EntityObj *pushentity (lua_State *L, gentity_t *entity) {
   /* not found, create one and store it */
   lua_pop(L, 1);
   p = (EntityObj *)lua_newuserdata(L, sizeof(EntityObj));
+  memset(p, 0, sizeof(EntityObj));
   p->entity = entity;
   luaL_setmetatable(L, ENTITYOBJ);
   lua_pushvalue(L, -1);
@@ -85,22 +86,24 @@ static void pain_hook(gentity_t *self, gentity_t *attacker, int damage) {
   qboolean handled = qfalse;
 
   luaL_getsubtable(L, LUA_REGISTRYINDEX, ENTITYKEY);
-  lua_rawgetp(L, -1, self);
-  p = (EntityObj *)lua_touserdata(L, -1);
-  if (!p) {
-    G_Printf("Lost binding.\n");
-    lua_settop(g_luaState, 0);
+  lua_rawgetp(L, -1, self->pain);
+  if (!lua_isfunction(L, -1)) {
+    G_Printf("lua pain hook missing\n");
+    lua_rawgetp(L, -2, self);
+    p = (EntityObj *)lua_touserdata(L, -1);
+    if (p && p->oldPain) {
+      p->oldPain(self, attacker, damage);
+      p->entity->pain = p->oldPain;
+      p->oldPain = NULL;
+    }
+    lua_settop(L, 0);
     return;
   }
-
-  lua_pop(L, 1);
-  lua_rawgetp(L, -1, p->pain);
-  if (!lua_isfunction(L, -1))
-    goto done;
+  lua_remove(L, -2);
 
   lua_pushcfunction(L, G_LuaTraceback);
   lua_insert(L, 1);
-  pushentity(L, self);
+  p = pushentity(L, self);
   pushentity(L, attacker);
   lua_pushinteger(L, damage);
   if (lua_pcall(L, 3, 1, 1)) {
@@ -111,10 +114,10 @@ static void pain_hook(gentity_t *self, gentity_t *attacker, int damage) {
   handled = lua_toboolean(L, -1);
 
 done:
-  if (p->pain && !handled)
-    p->pain(self, attacker, damage);
+  if (p->oldPain && !handled)
+    p->oldPain(self, attacker, damage);
 
-  lua_settop(g_luaState, 0);
+  lua_settop(L, 0);
 }
 
 static gentity_t *G_FindClosestEntityOfClass( vec3_t origin, const char *classname )
@@ -312,7 +315,7 @@ static void entityobj_origin_setter(lua_State *L, EntityObj *p) {
 
 static void entityobj_pain_getter(lua_State *L, EntityObj *p) {
   luaL_getsubtable(L, LUA_REGISTRYINDEX, ENTITYKEY);
-  lua_rawgetp(L, -1, p->pain);
+  lua_rawgetp(L, -1, p->entity->pain);
   if (!lua_isfunction(L, -1)) {
     lua_pop(L, 2);
     lua_pushnil(L);
@@ -324,20 +327,20 @@ static void entityobj_pain_getter(lua_State *L, EntityObj *p) {
 static void entityobj_pain_setter(lua_State *L, EntityObj *p) {
   if (!lua_isfunction(L, 3)) {
     if (p->entity->pain == pain_hook) {
-      p->entity->pain = p->pain;
-      p->pain = NULL;
+      p->entity->pain = p->oldPain;
+      p->oldPain = NULL;
     }
     return;
   }
 
   if (p->entity->pain != pain_hook) {
-    p->pain = p->entity->pain;
+    p->oldPain = p->entity->pain;
     p->entity->pain = pain_hook;
   }
 
   luaL_getsubtable(L, LUA_REGISTRYINDEX, ENTITYKEY);
   lua_insert(L, 3);
-  lua_rawsetp(L, -2, p->pain);
+  lua_rawsetp(L, -2, p->entity->pain);
 }
 
 
