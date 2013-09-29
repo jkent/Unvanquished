@@ -283,6 +283,16 @@ static void entityobj_bbox_getter(lua_State *L, EntityObj *p) {
 }
 
 
+static void entityobj_enabled_getter(lua_State *L, EntityObj *p) {
+  lua_pushboolean(L, p->entity->enabled);
+}
+
+
+static void entityobj_enabled_setter(lua_State *L, EntityObj *p) {
+  p->entity->enabled = lua_toboolean(L, 3);
+}
+
+
 static void entityobj_origin_getter(lua_State *L, EntityObj *p) {
   vec_t *v = lua_newvector(L, 3);
   memcpy(v, p->entity->s.origin, sizeof(vec_t) * 3);
@@ -340,6 +350,7 @@ typedef struct {
 static entityobj_var_t entityobj_var_list[] = {
   {"angles",  entityobj_angles_getter,  entityobj_angles_setter },
   {"bbox",    entityobj_bbox_getter,    NULL                    },
+  {"enabled", entityobj_enabled_getter, entityobj_enabled_setter},
   {"origin",  entityobj_origin_getter,  entityobj_origin_setter },
   {"pain",    entityobj_pain_getter,    entityobj_pain_setter   },
   {NULL,      NULL,                     NULL                    }
